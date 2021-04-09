@@ -25,7 +25,7 @@ export default class RoomController {
       video: true,
       audio: true,
     });
-    
+
     elVideo.muted = true;
     elVideo.autoplay = true;
     elVideo.playsInline = true;
@@ -41,7 +41,12 @@ export default class RoomController {
     const offer = await peerConnection.createOffer({ voiceActivityDetection: false });
     await peerConnection.setLocalDescription(offer)
 
-    const roomRef = await this.db.collection(RoomController.ROOM_COLLECTION).add({ offer: offer })
+    const roomRef = await this.db.collection(RoomController.ROOM_COLLECTION).add({
+      offer: {
+        sdp: offer.sdp,
+        type: offer.type
+      }
+    })
 
     return new Room({
       id: roomRef.id,
@@ -72,15 +77,15 @@ export default class RoomController {
     console.log("Getting localVideo to stop the tracks")
 
     room.unLoadTrack(localVideo.srcObject as MediaStream)
-      
+
     console.log("stopping all tracks for remoteStream");
-    remotesStream.forEach(remoteStream => {      
+    remotesStream.forEach(remoteStream => {
       room.unLoadTrack(remoteStream)
     })
 
     console.log("Close perrConnection");
     room.close()
-    room.removeReferences()    
+    room.removeReferences()
   }
 
 }

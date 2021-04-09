@@ -1,20 +1,26 @@
 <template>
   <div id="app">
     <img alt="Vue logo" src="./assets/logo.png" />
-    <PeerVideo />
+    <PeerVideo :roomController="roomController" />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import PeerVideo from "@/components/PeerVideo.vue";
+import FirebaseSetting from "@/core/FirebaseSetting";
+import RoomController from "@/core/RoomController";
+const fbase = FirebaseSetting.InitializeInstance();
 
 @Component({
   components: {
     PeerVideo,
   },
 })
-export default class App extends Vue {}
+export default class App extends Vue {
+  roomController = new RoomController(fbase.getStore());
+
+}
 </script>
 
 <style lang="scss">

@@ -8,6 +8,7 @@ export interface DataRoom {
   peerConnection: RTCPeerConnection
   roomRef: DocumentReference<DocumentData>
   localStream: MediaStream
+  remotesStream?: Array<MediaStream>
   //offer: RTCSessionDescriptionInit  
 }
 
@@ -17,6 +18,7 @@ export default class Room implements DataRoom {
   peerConnection: RTCPeerConnection
   roomRef: DocumentReference<DocumentData>
   localStream: MediaStream
+  remotesStream?: Array<MediaStream>
 
   constructor(room: DataRoom) {
     this.id = room.id
@@ -24,11 +26,12 @@ export default class Room implements DataRoom {
     this.peerConnection = room.peerConnection
     this.roomRef = room.roomRef
     this.localStream = room.localStream
+    this.remotesStream = room.remotesStream
   }
 
-  loadTrack(localStream: MediaStream): void {
-    localStream.getTracks().forEach((track) => {
-      this.peerConnection.addTrack(track, localStream);
+  loadTrack(stream: MediaStream): void {
+    stream.getTracks().forEach((track) => {
+      this.peerConnection.addTrack(track, stream);
     });
   }
 
