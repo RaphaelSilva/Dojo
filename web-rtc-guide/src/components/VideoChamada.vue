@@ -159,9 +159,7 @@ export default class VideoChamada extends Vue {
   async createRoom(): Promise<void> {
     this.createBtn.disabled = true;
     this.joinBtn.disabled = true;
-
     console.log("Create PeerConnection with configuration: ", configuration);
-
     this.peerConnection = new RTCPeerConnection(configuration);
     this.registerPeerConnectionListeners();
 

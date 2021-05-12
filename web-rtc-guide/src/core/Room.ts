@@ -1,11 +1,16 @@
 import {
   DocumentData,
-  DocumentReference
+  DocumentReference,
+  DocumentSnapshot
 } from "@firebase/firestore-types"
+import Peer from "./Peer"
+
+type RecivedPeer<T> = (peer: Peer, data: DocumentSnapshot<T>) => HTMLVideoElement
 
 export interface DataRoom {
   id: string
-  peerConnection: RTCPeerConnection
+  peerHost: Peer
+  peerClients?: Array<Peer>
   roomRef: DocumentReference<DocumentData>
   localStream: MediaStream
   remotesStream?: Array<MediaStream>
@@ -14,35 +19,46 @@ export interface DataRoom {
 
 export default class Room implements DataRoom {
   id: string
-  //offer: RTCSessionDescriptionInit;
-  peerConnection: RTCPeerConnection
+  peerHost: Peer
+  peerClients?: Array<Peer>
   roomRef: DocumentReference<DocumentData>
   localStream: MediaStream
   remotesStream?: Array<MediaStream>
 
+
   constructor(room: DataRoom) {
     this.id = room.id
-    //this.offer = room.offer
-    this.peerConnection = room.peerConnection
+    this.peerHost = room.peerHost
     this.roomRef = room.roomRef
     this.localStream = room.localStream
     this.remotesStream = room.remotesStream
-  }
-
-  loadTrack(stream: MediaStream): void {
-    stream.getTracks().forEach((track) => {
-      this.peerConnection.addTrack(track, stream);
-    });
   }
 
   unLoadTrack(stream: MediaStream): void {
     stream.getTracks().forEach((track) => { track.stop() })
   }
 
-  close(): void {
-    this.peerConnection.close()
+  RegisterRecivePeer(onRecivedPeer: RecivedPeer<DocumentData>): void {
+    this.roomRef.onSnapshot(async (snapshot) => {
+      const data = snapshot.data();
+      if (!this.peerHost.Connection) throw new Error("Cant find a connection");
+      if (!this.peerHost.Connection.currentRemoteDescription && data?.answer) {
+        onRecivedPeer(this.peerHost, data.answer)
+      }
+    });
   }
 
+
+  close(): void {
+    this.peerHost.Connection?.close()
+    this.peerClients?.forEach(peer => {
+      peer.Connection?.close()
+    })
+  }
+
+  /**
+   * Remove Peer of Room from origin
+   */
   async removeReferences(): Promise<void> {
     console.log("Delete room to database");
     const calleeCandidates = await this.roomRef.collection("calleeCandidates").get();

@@ -1,5 +1,6 @@
 import { FirebaseFirestore } from "@firebase/firestore-types"
 import Room from "@/core/Room"
+import Peer from "./Peer"
 
 const configuration = {
   iceServers: [
@@ -12,7 +13,8 @@ const configuration = {
 
 export default class RoomController {
 
-  private static ROOM_COLLECTION = "rooms"
+  private static ROOMS = "rooms"
+  private static ANSWER_CANDIDATES = "answerCandidates"
 
   private db: FirebaseFirestore
 
@@ -20,19 +22,19 @@ export default class RoomController {
     this.db = db;
   }
 
-  async AttachUserMediaTo(elVideo: HTMLVideoElement): Promise<MediaStream> {
+  async getMediaStream(): Promise<MediaStream> {
     const stream = await navigator.mediaDevices.getUserMedia({
       video: true,
       audio: true,
     });
+    return stream
+  }
 
+  configElementVideo(elVideo: HTMLVideoElement, stream: MediaStream): void {
     elVideo.muted = true;
     elVideo.autoplay = true;
     elVideo.playsInline = true;
-
-    elVideo.srcObject = stream
-
-    return stream
+    elVideo.srcObject = stream;
   }
 
   async createRoom(localStream: MediaStream): Promise<Room> {
@@ -41,32 +43,55 @@ export default class RoomController {
     const offer = await peerConnection.createOffer({ voiceActivityDetection: false });
     await peerConnection.setLocalDescription(offer)
 
-    const roomRef = await this.db.collection(RoomController.ROOM_COLLECTION).add({
+    const roomRef = await this.db.collection(RoomController.ROOMS).add({
       offer: {
         sdp: offer.sdp,
         type: offer.type
       }
     })
 
+    const peer = new Peer({ id: 'H-' + roomRef.id, Connection: peerConnection });
+    peer.Connection.addEventListener("icecandidate", (event) => {
+      const answerCandidates = roomRef.collection(RoomController.ANSWER_CANDIDATES);
+      return event.candidate && answerCandidates.add(event.candidate.toJSON());
+    })
+
+    localStream.getTracks().forEach((track) => {
+      peer.Connection.addTrack(track, localStream);
+    });
+
     return new Room({
       id: roomRef.id,
-      peerConnection: peerConnection,
+      peerHost: peer,
       roomRef: roomRef,
       localStream: localStream
-    })
+    });
+  }
+  
+  addRemotePeer(room: Room, peer: Peer): void {    
+    room.peerHost.Connection.addEventListener("track", (event) => {
+      event.streams[0].getTracks().forEach((track) => {
+        peer.Connection.addTrack(track);
+      });      
+    });
   }
 
   async joinRoomById(roomId: string, localStream: MediaStream): Promise<Room> {
-    const roomRef = await this.db.collection(RoomController.ROOM_COLLECTION).doc(roomId)
+    const roomRef = await this.db.collection(RoomController.ROOMS).doc(roomId)
     const roomSnapshot = await roomRef.get();
-    if (roomSnapshot.exists) {
+    if (roomSnapshot) {
       const peerConnection = new RTCPeerConnection(configuration)
-      return new Room({
+      const peer = new Peer({ id: 'H-' + roomRef.id, Connection: peerConnection })
+      localStream.getTracks().forEach((track) => {
+        peer.Connection.addTrack(track, localStream);
+      });
+      const room = new Room({
         id: roomId,
         roomRef: roomRef,
-        peerConnection: peerConnection,
+        peerHost: peer,
         localStream: localStream
-      })
+      })      
+      return room;
     } else {
       throw new Error(`roomId: ${roomId} does not exists!`)
     }
