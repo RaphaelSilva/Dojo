@@ -16,6 +16,6 @@
 *.tar.gz
 *.rar
 
-build/
-.gradle
-.idea
+/.gradle/
+/.idea/
+/build/
