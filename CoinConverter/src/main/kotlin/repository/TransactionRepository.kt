@@ -1,3 +1,6 @@
+package repository
+
+import entity.Transaction
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.StdOutSqlLogger

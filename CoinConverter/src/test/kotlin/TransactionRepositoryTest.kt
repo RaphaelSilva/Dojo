@@ -1,12 +1,9 @@
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import entity.TransactionTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.junit.BeforeClass
 import org.junit.Test
 import java.math.BigDecimal
 import java.time.LocalDateTime
@@ -14,6 +11,7 @@ import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import org.junit.jupiter.api.TestInstance
+import repository.TransactionRepository
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TransactionRepositoryTest {
