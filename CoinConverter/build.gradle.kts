@@ -26,6 +26,9 @@ dependencies {
     implementation("org.slf4j:slf4j-simple:1.8.0-beta4")
     implementation( "io.javalin:javalin:$linVersion")
     implementation("org.xerial:sqlite-jdbc:3.34.0")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
 }
 
 tasks.test {
@@ -37,5 +40,5 @@ tasks.withType<KotlinCompile> {
 }
 
 application {
-    mainClassName = "ServerKt"
+
 }
