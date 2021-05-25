@@ -31,5 +31,8 @@ class ExchangeApiTest {
         body.rates.forEach {
             rate -> assertTrue { rate.key in minimoSymvols }
         }
+        body.rates.forEach {
+                rate -> println(rate.value)
+        }
     }
 }
