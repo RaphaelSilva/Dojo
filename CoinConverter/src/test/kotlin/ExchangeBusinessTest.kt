@@ -1,109 +1,43 @@
-import bean.ExchangeService
 import bean.ResponseRates
 import bean.ResponseSymbols
-import okhttp3.Request
-import okio.Timeout
-import org.junit.jupiter.api.Test
+import org.junit.Test
 import org.junit.jupiter.api.TestInstance
 import repository.ExchangeBusiness
 import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import bean.ExchangeService
+import java.math.BigDecimal
+import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ExchangeBusinessTest {
 
-    companion object{
-        object Service:ExchangeService{
+    companion object {
+        object Service : ExchangeService {
             override fun listSymbols(): Call<ResponseSymbols> {
-
-                val symbols = mapOf<String, String>("USD" to "United States Dollar")
-
-                return object: Call<ResponseSymbols> {
-                    override fun clone(): Call<ResponseSymbols> {
-                        TODO("Not yet implemented")
-                    }
-
-                    override fun execute(): Response<ResponseSymbols> {
-                        return Response.success(ResponseSymbols(true,  symbols))
-                    }
-
-                    override fun enqueue(callback: Callback<ResponseSymbols>) {
-                        TODO("Not yet implemented")
-                    }
-
-                    override fun isExecuted(): Boolean {
-                        TODO("Not yet implemented")
-                    }
-
-                    override fun cancel() {
-                        TODO("Not yet implemented")
-                    }
-
-                    override fun isCanceled(): Boolean {
-                        TODO("Not yet implemented")
-                    }
-
-                    override fun request(): Request {
-                        TODO("Not yet implemented")
-                    }
-
-                    override fun timeout(): Timeout {
-                        TODO("Not yet implemented")
-                    }
-                }
+                val symbols = mapOf("USD" to "United States Dollar")
+                val responseSymbols = ResponseSymbols(true, symbols)
+                return CallResponseMock(responseSymbols)
             }
 
             override fun getRates(symbols: String): Call<ResponseRates> {
-
-                val rates = mapOf<String, Double>(
-                    "EUR" to 1.0,
-                    "USD" to 5.0,
-                    "JPY" to 20.0,
-                    "BRL" to 6.0
+                val rates = mapOf(
+                    "EUR" to 1.0, "USD" to 1.225363, "JPY" to 133.29986, "BRL" to 6.533881
                 )
-
-                return object: Call<ResponseRates> {
-                    override fun clone(): Call<ResponseRates> {
-                        TODO("Not yet implemented")
-                    }
-
-                    override fun execute(): Response<ResponseRates> {
-                        return Response.success(ResponseRates(true,"EUR",  rates))
-                    }
-
-                    override fun enqueue(callback: Callback<ResponseRates>) {
-                        TODO("Not yet implemented")
-                    }
-
-                    override fun isExecuted(): Boolean {
-                        TODO("Not yet implemented")
-                    }
-
-                    override fun cancel() {
-                        TODO("Not yet implemented")
-                    }
-
-                    override fun isCanceled(): Boolean {
-                        TODO("Not yet implemented")
-                    }
-
-                    override fun request(): Request {
-                        TODO("Not yet implemented")
-                    }
-
-                    override fun timeout(): Timeout {
-                        TODO("Not yet implemented")
-                    }
-                }
+                val responseRates = ResponseRates(true, "EUR", rates)
+                return CallResponseMock(responseRates)
             }
 
         }
     }
 
     @Test
-    fun `it should convert value`(){
+    fun `it should convert value`() {
         val business = ExchangeBusiness(Service)
-        val exp = business.Convert(10.0, "BRL","JPY")
+        val exp = business.convert(10.0, "BRL", "JPY")
+        assertEquals(exp.coin_src, "BRL")
+        assertEquals(exp.coin_dest, "JPY")
+        assertEquals(exp.value_src, BigDecimal.valueOf(10.0))
+        assertEquals(exp.value_dest,BigDecimal.valueOf( 204.01329623236174))
+        assertEquals(exp.tax, 20.401329623236174)
     }
 }
