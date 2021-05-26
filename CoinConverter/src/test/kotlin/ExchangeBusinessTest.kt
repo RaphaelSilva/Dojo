@@ -38,6 +38,6 @@ class ExchangeBusinessTest {
         assertEquals(exp.coin_dest, "JPY")
         assertEquals(exp.value_src, BigDecimal.valueOf(10.0))
         assertEquals(exp.value_dest,BigDecimal.valueOf( 204.01329623236174))
-        assertEquals(exp.tax, 20.401329623236174)
+        assertEquals(exp.rate, 20.401329623236174)
     }
 }
