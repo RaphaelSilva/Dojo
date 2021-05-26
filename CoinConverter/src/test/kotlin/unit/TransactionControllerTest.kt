@@ -1,3 +1,5 @@
+package unit
+
 import bean.ResponseRates
 import bean.ResponseSymbols
 import org.junit.Test
@@ -6,10 +8,10 @@ import retrofit2.Call
 import bean.ExchangeService
 import controller.TransactionController
 import io.javalin.http.Context
-import io.mockk.MockKStubScope
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import mocks.CallResponseMock
 import org.jetbrains.exposed.sql.Database
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)

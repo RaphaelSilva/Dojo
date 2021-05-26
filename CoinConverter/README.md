@@ -8,8 +8,7 @@ To convert an amount the CoinConverter use Api service from:
 
     https://api.exchangeratesapi.io/
 
-In you free version it has no convert command enabled then the calculation is 
-take base currency 
+In its free version it has no convert command enabled then the calculation has to take base currency.  
 
 
 

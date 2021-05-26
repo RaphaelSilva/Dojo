@@ -1,4 +1,5 @@
-import com.google.gson.Gson
+package mocks
+
 import okhttp3.Request
 import okio.Timeout
 import retrofit2.Call

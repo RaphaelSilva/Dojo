@@ -1,3 +1,5 @@
+package mocks
+
 import bean.ExchangeService
 import bean.ResponseRates
 import bean.ResponseSymbols

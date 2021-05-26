@@ -1,3 +1,5 @@
+package unit
+
 import bean.ResponseRates
 import bean.ResponseSymbols
 import org.junit.Test
@@ -5,6 +7,7 @@ import org.junit.jupiter.api.TestInstance
 import repository.ExchangeBusiness
 import retrofit2.Call
 import bean.ExchangeService
+import mocks.CallResponseMock
 import java.math.BigDecimal
 import kotlin.test.assertEquals
 

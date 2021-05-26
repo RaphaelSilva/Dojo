@@ -1,3 +1,5 @@
+package unit
+
 import bean.ExchangeApiConnector
 import bean.ExchangeService
 import org.junit.Test
