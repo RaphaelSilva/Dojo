@@ -11,6 +11,6 @@ class Transaction(id: EntityID<Int>) : TransactionData, IntEntity(id) {
     override var coin_dest by TransactionTable.coin_dest
     override var value_src by TransactionTable.value_src
     override var value_dest by TransactionTable.value_dest
-    override var rate by TransactionTable.rate
+    override var rate: Double by TransactionTable.rate
     override var creationDate by TransactionTable.creationDate
 }

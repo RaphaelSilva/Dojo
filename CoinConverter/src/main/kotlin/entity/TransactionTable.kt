@@ -10,7 +10,7 @@ object TransactionTable : IntIdTable() {
     val coin_dest = varchar("coin_dest", coin_length)
     val value_src = decimal("value_src", 5, 5)
     val value_dest = decimal("value_dest", 5, 5)
-    val rate = float("rate")
+    val rate = double("rate")
     val creationDate = datetime("creationDate")
 }
 

@@ -12,6 +12,6 @@ interface TransactionData {
     val coin_dest: String
     val value_src: BigDecimal
     val value_dest: BigDecimal
-    val rate: Float
+    val rate: Double
     val creationDate: LocalDateTime
 }
