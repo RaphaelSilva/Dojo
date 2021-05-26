@@ -45,22 +45,23 @@ class TransactionController(dbContext: Database, apiService: ExchangeService) {
         }
     }
 
-    fun convert(ctx: Context): Context {
+    fun convert(ctx: Context): Transaction {
         val value = ctx.pathParam<Double>("value").value!!
         val from = ctx.pathParam("from")
         val to = ctx.pathParam("to")
         val user_id = getUserId(ctx)
         val exchange = businessConvert(value, from, to)
         val transaction = repositoryPersist(user_id, exchange)
-        return ctx.json(transaction)
+        ctx.json(transaction)
+        return transaction
     }
 
-    fun listAll(ctx: Context): Context {
+    fun listAll(ctx: Context): List<Transaction> {
         val user_id = UUID.fromString(ctx.queryParam("UserId"))
 
         val transactions = transactionRepository.getAll(user_id)
-
-        return ctx.json(transactions)
+        ctx.json(transactions)
+        return transactions
     }
 
 

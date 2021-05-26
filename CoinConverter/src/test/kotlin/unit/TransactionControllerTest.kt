@@ -7,12 +7,18 @@ import org.junit.jupiter.api.TestInstance
 import retrofit2.Call
 import bean.ExchangeService
 import controller.TransactionController
+import entity.TransactionTable
 import io.javalin.http.Context
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import mocks.CallResponseMock
-import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.transactions.transaction
+import java.math.BigDecimal
+import java.time.LocalDateTime
+import java.util.*
+import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TransactionControllerTest {
@@ -39,27 +45,68 @@ class TransactionControllerTest {
     }
 
     private val ctx = mockk<Context>(relaxed = true)
+    private val userId = "55619f6e-bdbd-11eb-8529-0242ac130003"
+    private val coinSrc = "BRL"
+    private val coinDest = "JPY"
+    private val valueSrc = 10.0
+    private val valueDest = 204.4
 
     @Test
     fun `it should create new and convert transaction`() {
-        every{ ctx.pathParam<Double>("value").value!! } returns 10.0
-        every{ ctx.pathParam("from") } returns "BRL"
-        every{ ctx.pathParam("to") } returns "JPY"
-        every { ctx.queryParam("UserId") } returns "55619f6e-bdbd-11eb-8529-0242ac130003"
+        transaction(dbContext) {
+            addLogger(StdOutSqlLogger)
+            SchemaUtils.create(TransactionTable)
 
-        val controller = TransactionController(dbContext, Service)
-        controller.convert(ctx)
+            every { ctx.pathParam<Double>("value").value!! } returns valueSrc
+            every { ctx.pathParam("from") } returns coinSrc
+            every { ctx.pathParam("to") } returns coinDest
+            every { ctx.queryParam("UserId") } returns userId
 
-        verify { ctx.status(201) }
+            val controller = TransactionController(dbContext, Service)
+            val transaction = controller.convert(ctx)
+
+            verify { ctx.json(transaction) }
+        }
     }
 
     @Test
     fun `it should list all transaction from user id`() {
-        every { ctx.queryParam("UserId") } returns "55619f6e-bdbd-11eb-8529-0242ac130003"
+        transaction(dbContext) {
+            addLogger(StdOutSqlLogger)
+            SchemaUtils.create(TransactionTable)
 
-        val controller = TransactionController(dbContext, Service)
-        controller.listAll(ctx)
+            for (i in 0..3){
+                TransactionTable.insert {
+                    it[user_id] = UUID.randomUUID()
+                    it[coin_dest] = coinDest
+                    it[coin_src] = coinSrc
+                    it[value_dest] = BigDecimal.valueOf(valueDest)
+                    it[value_src] = BigDecimal.valueOf(valueSrc)
+                    it[creationDate] = LocalDateTime.now()
+                    it[rate] = 5.5
+                }
+            }
 
-        verify { ctx.status(201) }
+            for (i in 0..9){
+                TransactionTable.insert {
+                    it[user_id] = UUID.fromString(userId)
+                    it[coin_dest] = coinDest
+                    it[coin_src] = coinSrc
+                    it[value_dest] = BigDecimal.valueOf(valueDest)
+                    it[value_src] = BigDecimal.valueOf(valueSrc)
+                    it[creationDate] = LocalDateTime.now()
+                    it[rate] = 5.5
+                }
+            }
+
+            every { ctx.queryParam("UserId") } returns userId
+
+            val controller = TransactionController(dbContext, Service)
+            val transactions = controller.listAll(ctx)
+
+            verify { ctx.json(transactions) }
+
+            assertEquals(10, transactions.size)
+        }
     }
 }
