@@ -39,6 +39,19 @@ class TransactionControllerTest {
     private val ctx = mockk<Context>(relaxed = true)
 
     @Test
+    fun `it should create new and convert transaction`() {
+        every{ ctx.pathParam<Double>("value").value!! } returns 10.0
+        every{ ctx.pathParam("from") } returns "BRL"
+        every{ ctx.pathParam("to") } returns "JPY"
+        every { ctx.queryParam("UserId") } returns "55619f6e-bdbd-11eb-8529-0242ac130003"
+
+        val controller = TransactionController(dbContext, Service)
+        controller.convert(ctx)
+
+        verify { ctx.status(201) }
+    }
+
+    @Test
     fun `it should list all transaction from user id`() {
         every { ctx.queryParam("UserId") } returns "55619f6e-bdbd-11eb-8529-0242ac130003"
 

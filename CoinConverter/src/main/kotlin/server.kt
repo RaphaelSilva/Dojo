@@ -1,8 +1,12 @@
-import io.javalin.Javalin
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.Table
+
+import bean.ExchangeApiConnector
+import bean.ExchangeService
+import org.jetbrains.exposed.sql.Database
+
 
 fun main() {
-    val app = Javalin.create().start(7000)
-    app.get("/") { ctx -> ctx.result("Hello World") }
+    val path = System.getProperty("user.dir")
+    val db = Database.connect("jdbc:sqlite:$path/data.db", "org.sqlite.JDBC")
+    val apiService = ExchangeApiConnector.Create(ExchangeService::class.java)
+    App(db, apiService).routes().start()
 }
