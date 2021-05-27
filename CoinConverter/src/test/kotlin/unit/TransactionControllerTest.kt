@@ -8,6 +8,7 @@ import retrofit2.Call
 import bean.ExchangeService
 import controller.TransactionController
 import entity.TransactionTable
+import io.javalin.http.BadRequestResponse
 import io.javalin.http.Context
 import io.mockk.every
 import io.mockk.mockk
@@ -15,10 +16,12 @@ import io.mockk.verify
 import mocks.CallResponseMock
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.junit.jupiter.api.Order
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.*
 import kotlin.test.assertEquals
+import kotlin.test.assertFails
 
 class TransactionControllerTest {
 
@@ -41,7 +44,6 @@ class TransactionControllerTest {
         }
     }
 
-    private val ctx = mockk<Context>(relaxed = true)
     private val userId = "55619f6e-bdbd-11eb-8529-0242ac130003"
     private val coinSrc = "BRL"
     private val coinDest = "JPY"
@@ -49,7 +51,9 @@ class TransactionControllerTest {
     private val valueDest = 204.4
 
     @Test
+    @Order(1)
     fun `it should create new and convert transaction`() {
+        val ctx = mockk<Context>(relaxed = true)
         val dbContext = Database.connect("jdbc:sqlite:file:test?mode=memory&cache=shared", "org.sqlite.JDBC")
         transaction(dbContext) {
             addLogger(StdOutSqlLogger)
@@ -68,13 +72,15 @@ class TransactionControllerTest {
     }
 
     @Test
+    @Order(2)
     fun `it should list all transaction from user id`() {
+        val ctx = mockk<Context>(relaxed = true)
         val dbContext = Database.connect("jdbc:sqlite:file:test?mode=memory&cache=shared", "org.sqlite.JDBC")
         transaction(dbContext) {
             addLogger(StdOutSqlLogger)
             SchemaUtils.create(TransactionTable)
 
-            for (i in 0..3){
+            for (i in 0..3) {
                 TransactionTable.insert {
                     it[user_id] = UUID.randomUUID()
                     it[coin_dest] = coinDest
@@ -86,7 +92,7 @@ class TransactionControllerTest {
                 }
             }
 
-            for (i in 0..9){
+            for (i in 0..9) {
                 TransactionTable.insert {
                     it[user_id] = UUID.fromString(userId)
                     it[coin_dest] = coinDest
@@ -107,5 +113,20 @@ class TransactionControllerTest {
 
             assertEquals(10, transactionsResponse.size)
         }
+    }
+
+    @Test(expected = BadRequestResponse::class)
+    @Order(3)
+    fun `it should try to create new transaction and get fail`() {
+        val ctx = mockk<Context>(relaxed = true)
+        val dbContext = Database.connect("jdbc:sqlite:file:test?mode=memory&cache=shared", "org.sqlite.JDBC")
+
+        every { ctx.pathParam<Double>("value").value!! } returns valueSrc
+        every { ctx.pathParam("from") } returns coinSrc
+        every { ctx.pathParam("to") } returns coinDest
+        every { ctx.queryParam("UserId") } returns userId
+
+        val controller = TransactionController(dbContext, Service)
+        controller.convert(ctx)
     }
 }
