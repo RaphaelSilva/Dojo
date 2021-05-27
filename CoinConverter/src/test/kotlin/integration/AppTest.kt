@@ -27,7 +27,7 @@ class AppTest {
         val host = app.server()?.serverHost
         val port = app.server()?.serverPort
         val baseUrl = "http://$host:$port"
-        val userId = UUID.randomUUID().toString()
+        val userId = "ce816beb-8c02-4f77-b44a-bdffedd7d145"
 
         @BeforeClass
         @JvmStatic
