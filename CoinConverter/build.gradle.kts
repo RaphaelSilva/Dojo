@@ -32,7 +32,6 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.19.0")
     testImplementation(kotlin("test-junit"))
     testImplementation("io.mockk:mockk:1.9.3")
-
 }
 
 tasks.test {
@@ -44,5 +43,6 @@ tasks.withType<KotlinCompile> {
 }
 
 application {
-
+    mainClass.set("ServerKt")
 }
+

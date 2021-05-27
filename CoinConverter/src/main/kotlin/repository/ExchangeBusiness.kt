@@ -12,7 +12,7 @@ class ExchangeBusiness(private val service: ExchangeService) {
         if(body?.rates?.size!! == 1){
             throw Exception("No rates to calculate")
         }
-        val convert = (value / body?.rates?.get(from)!!) * body.rates.get(to)!!
+        val convert = (value / body.rates.get(from)!!) * body.rates.get(to)!!
         return Exchange(
             from, to,
             BigDecimal.valueOf(value),
