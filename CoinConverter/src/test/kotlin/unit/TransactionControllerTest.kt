@@ -63,9 +63,9 @@ class TransactionControllerTest {
             every { ctx.queryParam("UserId") } returns userId
 
             val controller = TransactionController(dbContext, Service)
-            val transaction = controller.convert(ctx)
+            val transactionResponse = controller.convert(ctx)
 
-            verify { ctx.json(transaction) }
+            verify { ctx.json(transactionResponse) }
         }
     }
 
