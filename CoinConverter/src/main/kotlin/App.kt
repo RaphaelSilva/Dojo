@@ -23,9 +23,11 @@ class App(private val db: Database, private val service: ExchangeService) {
         return this
     }
 
-    fun createDatabase() {
-        transaction(db) {
-            SchemaUtils.create(TransactionTable)
+    companion object {
+        fun createDatabase(db: Database) {
+            transaction(db) {
+                SchemaUtils.create(TransactionTable)
+            }
         }
     }
 
