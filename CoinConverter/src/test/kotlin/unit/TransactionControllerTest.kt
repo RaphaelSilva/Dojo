@@ -20,10 +20,7 @@ import java.time.LocalDateTime
 import java.util.*
 import kotlin.test.assertEquals
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TransactionControllerTest {
-
-    private val dbContext = Database.connect("jdbc:sqlite:file:test?mode=memory&cache=shared", "org.sqlite.JDBC")
 
     companion object {
         object Service : ExchangeService {
@@ -53,6 +50,7 @@ class TransactionControllerTest {
 
     @Test
     fun `it should create new and convert transaction`() {
+        val dbContext = Database.connect("jdbc:sqlite:file:test?mode=memory&cache=shared", "org.sqlite.JDBC")
         transaction(dbContext) {
             addLogger(StdOutSqlLogger)
             SchemaUtils.create(TransactionTable)
@@ -71,6 +69,7 @@ class TransactionControllerTest {
 
     @Test
     fun `it should list all transaction from user id`() {
+        val dbContext = Database.connect("jdbc:sqlite:file:test?mode=memory&cache=shared", "org.sqlite.JDBC")
         transaction(dbContext) {
             addLogger(StdOutSqlLogger)
             SchemaUtils.create(TransactionTable)
@@ -102,11 +101,11 @@ class TransactionControllerTest {
             every { ctx.queryParam("UserId") } returns userId
 
             val controller = TransactionController(dbContext, Service)
-            val transactions = controller.listAll(ctx)
+            val transactionsResponse = controller.listAll(ctx)
 
-            verify { ctx.json(transactions) }
+            verify { ctx.json(transactionsResponse) }
 
-            assertEquals(10, transactions.size)
+            assertEquals(10, transactionsResponse.size)
         }
     }
 }
