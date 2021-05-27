@@ -29,7 +29,7 @@ class TransactionController(dbContext: Database, apiService: ExchangeService) {
         try {
             return business.convert(value, from, to)
         } catch (e: Exception) {
-            throw BadRequestResponse("User id is not right!!!")
+            throw BadRequestResponse("Error to convert $value from $from to $to \n ${e.message}")
         }
     }
 
