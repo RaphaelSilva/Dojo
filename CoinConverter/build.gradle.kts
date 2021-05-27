@@ -28,6 +28,8 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.10.3")
+    testImplementation("com.konghq:unirest-java:3.11.09")
+    testImplementation("org.assertj:assertj-core:3.19.0")
     testImplementation(kotlin("test-junit"))
     testImplementation("io.mockk:mockk:1.9.3")
 
