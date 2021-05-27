@@ -1,3 +1,4 @@
+import bean.ExchangeApiConnector
 import bean.ExchangeService
 import controller.TransactionController
 import entity.TransactionTable
@@ -7,11 +8,23 @@ import io.javalin.apibuilder.ApiBuilder.path
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.io.File
 
-class App(private val db: Database, private val service: ExchangeService) {
-    val app = Javalin.create()
+class App {
+    private val db: Database
+    private val app = Javalin.create()
 
-    fun routes(): App {
+    constructor(path: String, dbFileName: String) {
+        val fileExists = File(path, dbFileName).exists()
+        db = Database.connect("jdbc:sqlite:$path/$dbFileName", "org.sqlite.JDBC")
+        if (!fileExists) {
+            transaction(db) {
+                SchemaUtils.create(TransactionTable)
+            }
+        }
+    }
+
+    fun routes(service: ExchangeService = ExchangeApiConnector.Create(ExchangeService::class.java)): App {
         app.routes {
             path("Transaction") {
                 get(TransactionController(db, service)::listAll)
@@ -23,16 +36,7 @@ class App(private val db: Database, private val service: ExchangeService) {
         return this
     }
 
-    companion object {
-        fun createDatabase(db: Database) {
-            transaction(db) {
-                SchemaUtils.create(TransactionTable)
-            }
-        }
+    fun start(host:String = "localhost", port: Int = 7000): Javalin {
+        return app.start(host, port)
     }
-
-    fun start(): Javalin {
-        return app.start(7000)
-    }
-
 }
