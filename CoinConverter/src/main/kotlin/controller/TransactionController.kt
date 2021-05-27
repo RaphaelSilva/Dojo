@@ -68,12 +68,24 @@ class TransactionController(dbContext: Database, apiService: ExchangeService) {
         return transactionResponse
     }
 
-    fun listAll(ctx: Context): List<Transaction> {
+    fun listAll(ctx: Context): List<TransactionResponse> {
         val user_id = UUID.fromString(ctx.queryParam("UserId"))
 
         val transactions = transactionRepository.getAll(user_id)
-        ctx.json(transactions)
-        return transactions
+        val transactionsResponse = transactions.map { transaction ->
+            TransactionResponse(
+                transaction.id.value,
+                transaction.user_id,
+                transaction.coin_src,
+                transaction.coin_dest,
+                transaction.value_src,
+                transaction.value_dest,
+                transaction.rate,
+                transaction.creationDate.toString()
+            )
+        }
+        ctx.json(transactionsResponse)
+        return transactionsResponse
     }
 
 
