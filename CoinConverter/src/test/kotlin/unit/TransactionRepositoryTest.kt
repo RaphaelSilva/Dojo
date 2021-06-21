@@ -1,3 +1,5 @@
+package unit
+
 import entity.TransactionTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -15,15 +17,15 @@ import repository.TransactionRepository
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TransactionRepositoryTest {
-    var dbContext = Database.connect("jdbc:sqlite:file:test?mode=memory&cache=shared", "org.sqlite.JDBC")
-    var transactionRepository = TransactionRepository(dbContext)
+    val dbContext = Database.connect("jdbc:sqlite:file:test?mode=memory&cache=shared", "org.sqlite.JDBC")
+    val transactionRepository = TransactionRepository(dbContext)
 
     val user_id = UUID.randomUUID()
     val coin_src = "SRC"
     val coin_dest = "DEST"
     val value_src = BigDecimal.valueOf(5.5)
     val value_dest = BigDecimal.valueOf(6.6)
-    val rate = .3F
+    val rate = 0.3
     val localdatetime = LocalDateTime.now()
 
     @Test

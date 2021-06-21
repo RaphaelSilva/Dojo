@@ -7,9 +7,7 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.*
 
-class TransactionRepository constructor(dataContext: Database) {
-
-    var db: Database = dataContext
+class TransactionRepository constructor(private val db: Database) {
 
     fun Persist(
         p_user_id: UUID,
@@ -17,10 +15,10 @@ class TransactionRepository constructor(dataContext: Database) {
         p_coin_dest: String,
         p_value_src: BigDecimal,
         p_value_dest: BigDecimal,
-        p_rate: Float,
+        p_rate: Double,
         p_creationDate: LocalDateTime
     ): Transaction {
-        return transaction(this.db) {
+        return transaction(db) {
             return@transaction Transaction.new {
                 user_id = p_user_id
                 coin_src = p_coin_src

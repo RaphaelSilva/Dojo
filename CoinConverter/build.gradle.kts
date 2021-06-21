@@ -17,7 +17,6 @@ val linVersion: String by project
 val exposedVersion: String by project
 dependencies {
     implementation("org.junit.jupiter:junit-jupiter:5.7.0")
-    testImplementation(kotlin("test-junit"))
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.2")
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
@@ -28,7 +27,11 @@ dependencies {
     implementation("org.xerial:sqlite-jdbc:3.34.0")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.10.3")
+    testImplementation("com.konghq:unirest-java:3.11.09")
+    testImplementation("org.assertj:assertj-core:3.19.0")
+    testImplementation(kotlin("test-junit"))
+    testImplementation("io.mockk:mockk:1.9.3")
 }
 
 tasks.test {
@@ -40,5 +43,6 @@ tasks.withType<KotlinCompile> {
 }
 
 application {
-
+    mainClass.set("ServerKt")
 }
+
