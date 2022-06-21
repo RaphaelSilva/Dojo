@@ -1,0 +1,7 @@
+{
+    "makefile.extensionOutputFolder": "./.vscode",
+    "files.exclude": {
+        "**/*.pyc*": true,
+        "venv": true
+      }
+}
